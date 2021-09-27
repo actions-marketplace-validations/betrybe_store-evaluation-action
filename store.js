@@ -12,10 +12,10 @@ switch(environment) {
     endpoint = 'http://localhost:3310/v2/evaluation';
     break;
   case 'staging':
-    endpoint = 'https://trybe-evaluation-staging.herokuapp.com/v2/evaluation';
+    endpoint = 'https://evaluation-platform.betrybe.dev/v2/evaluation';
     break;
   case 'production':
-    endpoint = 'https://trybe-evaluation-production.herokuapp.com/v2/evaluation';
+    endpoint = 'https://evaluation-platform.betrybe.com/v2/evaluation';
     break;
   default:
     break;
