@@ -20,4 +20,5 @@ curl \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" \
   $ENDPOINT
+echo
 echo "Done!"
