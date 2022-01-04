@@ -32,8 +32,6 @@ Must be:
 
 Pull Request number that trigger build.
 
-## Outputs
-
 ## Usage example
 ```yml
 - name: Evaluator

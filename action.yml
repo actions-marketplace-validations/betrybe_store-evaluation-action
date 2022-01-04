@@ -12,9 +12,12 @@ inputs:
     description: 'Pull Request number that trigger build'
     required: true
 runs:
-  using: 'docker'
-  image: Dockerfile
-  args:
-    - ${{ inputs.evaluation-data }}
-    - ${{ inputs.environment }}
-    - ${{ inputs.pr-number }}
+  using: 'composite'
+  steps:
+    - id: job
+      shell: bash
+      run: ${{ github.action_path }}/store.sh
+      env:
+        EVALUATION_DATA: ${{ inputs.evaluation-data }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        PR_NUMBER: ${{ inputs.pr-number }}
