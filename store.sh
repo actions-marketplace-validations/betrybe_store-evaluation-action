@@ -7,16 +7,17 @@ PAYLOAD=$(echo $EVALUATION_DATA \
 )
 
 if [[ "$ENVIRONMENT" == "staging" ]]; then
-  ENDPOINT="https://evaluation-platform.betrybe.dev/v2/evaluation"
+  ENDPOINT="https://projects-service.betrybe.dev/api/v1/deliveries"
 elif [[ "$ENVIRONMENT" == "production" ]]; then
-  ENDPOINT="https://evaluation-platform.betrybe.com/v2/evaluation"
+  ENDPOINT="https://projects-service.betrybe.com/api/v1/deliveries"
 else
   ENVIRONMENT="development"
-  ENDPOINT="http://localhost:3310/v2/evaluation"
+  ENDPOINT="http://localhost:4000/api/v1/deliveries"
 fi
 
 echo "Sending evaluation information using '$ENVIRONMENT'..."
 curl \
+  -X POST \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" \
   $ENDPOINT
