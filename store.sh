@@ -16,10 +16,21 @@ else
 fi
 
 echo "Sending evaluation information using '$ENVIRONMENT'..."
-curl \
+
+status_code=$(
+  curl \
   -X POST \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" \
+  --write-out %{http_code} \
+  --silent \
+  --output /dev/null \
   $ENDPOINT
-echo
-echo "Done!"
+)
+
+if [[ "$status_code" == 201 ]]; then
+  echo "Done!"
+else
+  echo "Execution error"
+  exit 1
+fi
