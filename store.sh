@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+red='\033[0;31m'
+green='\033[32m'
+blue='\033[36m'
+reset='\033[0m'
+
 PAYLOAD=$(echo $EVALUATION_DATA \
   | base64 -d \
   | jq -c --arg number $PR_NUMBER '. + {pr_number: $number}'
@@ -15,22 +20,24 @@ else
   ENDPOINT="http://localhost:4000/api/v1/deliveries"
 fi
 
-echo "Sending evaluation information using '$ENVIRONMENT'..."
+echo -e "${blue}[INFO] Sending evaluation information using →${reset} '$ENVIRONMENT'"
 
 status_code=$(
   curl \
   -X POST \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" \
-  --write-out %{http_code} \
+  --write-out %{response_code} \
   --silent \
-  --output /dev/null \
+  --output response_output.txt \
   $ENDPOINT
 )
 
+echo -e "${blue}[INFO] Status Code →${reset} '$status_code'"
 if [[ "$status_code" == 201 ]]; then
-  echo "Done!"
+  echo -e "${green}[INFO] Delivery created successfully ✓"
 else
-  echo "Execution error"
+  echo -e "${red}[ERROR] Execution error"
+  echo -e "${red}[ERROR] Response ↓${reset}" | cat - response_output.txt
   exit 1
 fi
