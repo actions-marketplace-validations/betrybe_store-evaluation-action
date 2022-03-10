@@ -20,6 +20,20 @@ else
   ENDPOINT="http://localhost:4000/api/v1/deliveries"
 fi
 
+echo -e "${blue}[INFO] Checking changes to protected files"
+
+changes=$(git diff-index --name-only HEAD)
+protected_files=(".github/workflows/main.yml" "trybe.yml" ".trybe/requirements.json")
+
+for file in ${protected_files[@]}
+do
+  if [[ "${changes[*]}" =~ $file ]]; then
+    echo -e "${red}[ERROR] Execution error"
+    echo -e "The file ${file} cannot be modified."
+    exit 1
+  fi
+done
+
 echo -e "${blue}[INFO] Sending evaluation information using →${reset} '$ENVIRONMENT'"
 
 status_code=$(
