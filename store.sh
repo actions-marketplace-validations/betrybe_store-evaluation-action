@@ -40,6 +40,7 @@ status_code=$(
   curl \
   -X POST \
   -H "Content-Type: application/json" \
+  -H "Authorization: Basic $EVALUATION_SECRET" \
   -d "$PAYLOAD" \
   --write-out %{response_code} \
   --silent \
