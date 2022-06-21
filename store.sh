@@ -12,9 +12,9 @@ PAYLOAD=$(echo $EVALUATION_DATA \
 )
 
 if [[ "$ENVIRONMENT" == "staging" ]]; then
-  ENDPOINT="https://projects-service.betrybe.dev/projects-service/internal/v2/deliveries"
+  ENDPOINT="https://api.betrybe.dev/projects-service/internal/v2/deliveries"
 elif [[ "$ENVIRONMENT" == "production" ]]; then
-  ENDPOINT="https://projects-service.betrybe.com/projects-service/internal/v2/deliveries"
+  ENDPOINT="https://api.betrybe.com/projects-service/internal/v2/deliveries"
 else
   ENVIRONMENT="development"
   ENDPOINT="http://localhost:4000/projects-service/internal/v2/deliveries"
