@@ -50,9 +50,24 @@ status_code=$(
 
 echo -e "${blue}[INFO] Status Code →${reset} '$status_code'"
 if [[ "$status_code" == 201 ]]; then
+  echo '### ✅ Avaliação registrada' >> $GITHUB_STEP_SUMMARY
   echo -e "${green}[INFO] Delivery created successfully ✓"
 else
+  echo '### ❌ Avaliação não registrada' >> $GITHUB_STEP_SUMMARY
+
+  response=$(<response_output.txt)
+  username=$(echo $PAYLOAD | jq -r '.github_username')
+
+  if [[ $(echo $response | jq -r '.message') = "Student not found" ]]; then
+    echo "Não foi possível encontrar o nome de usuário \`$username\` na lista de pessoas estudantes" >> $GITHUB_STEP_SUMMARY
+  fi
+
+  if [[ $(echo $response | jq ".errors // empty | .evaluations // empty[] | .[] | select(.requirement_id) | any(.requirement_id[]; IN(\"can't be blank\"))") = true ]]; then 
+    echo "Os requisitos do projeto não são válidos" >> $GITHUB_STEP_SUMMARY
+  fi
+
   echo -e "${red}[ERROR] Execution error"
-  echo -e "${red}[ERROR] Response ↓${reset}" | cat - response_output.txt
+  echo -e "${red}[ERROR] Response ↓${reset}"
+  echo $response
   exit 1
 fi
