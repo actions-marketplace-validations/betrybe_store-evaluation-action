@@ -1,7 +1,5 @@
 # store-evaluation-action
-Action to store evaluation in Tryber projects
-
-This action receives evaluation data from an evaluator and store it in Forest Admin.
+Essa action recebe os dados de avaliação de um avaliador e manda para o [projects-service](https://github.com/betrybe/projects-service).
 
 ## Inputs
 
@@ -22,7 +20,7 @@ JSON with structure below in the base64 format:
 
 ### `environment`
 
-Must be:
+Deve ser:
 
 - development
 - staging
@@ -30,21 +28,25 @@ Must be:
 
 ### `pr-number`
 
-Pull Request number that trigger build.
+O número do Pull Request que engatilhou a avaliação.
 
-## Usage example
+## Exemplo de uso
 ```yml
-- name: Evaluator
-  id: evaluator
-  uses: betrybe/jest-evaluator-action
-- name: Store evaluation action
-  uses: betrybe/store-evaluation-action@v2
+- name: Fetch Store evaluation
+    uses: actions/checkout@v2
+  with:
+    repository: betrybe/store-evaluation-action
+    ref: v4.3
+    token: ${{ secrets.GIT_HUB_PAT }}
+    path: .github/actions/store-evaluation
+- name: Run Store evaluation
+  uses: ./.github/actions/store-evaluation
   with:
     evaluation-data: ${{ steps.evaluator.outputs.result }}
     environment: production
-    pr-number: ${{ github.event.inputs.pr_number }}
+    pr-number: ${{ github.event.pull_request.number }}
 ```
 
-## Learn about GitHub Actions
+## Aprenda mais sobre GitHub Actions
 
 - https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-a-docker-container-action
