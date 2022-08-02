@@ -1,18 +1,20 @@
-name: 'Store evaluation'
-description: 'This action store evaluations from Tryber projects.'
+name: "Store evaluation"
+description: "Essa action salva avaliações de projetos da Trybe."
+
 inputs:
   evaluation-data:
-    description: 'JSON with structure below in the base64 format'
+    description: "JSON contendo os resultados do avaliador, no formato base64"
     required: true
   environment:
-    description: 'Environment'
+    description: "Ambiente para qual a avaliação será enviada"
     required: true
-    default: 'development'
-  pr-number:
-    description: 'Pull Request number that trigger build'
+    default: "development"
+  commit_hash:
+    description: "Hash do commit que originou a avaliação"
     required: true
+
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - id: job
       shell: bash
@@ -20,4 +22,4 @@ runs:
       env:
         EVALUATION_DATA: ${{ inputs.evaluation-data }}
         ENVIRONMENT: ${{ inputs.environment }}
-        PR_NUMBER: ${{ inputs.pr-number }}
+        COMMIT_HASH: ${{ inputs.commit_hash }}

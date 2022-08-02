@@ -26,9 +26,9 @@ Deve ser:
 - staging
 - production
 
-### `pr-number`
+### `commit_hash`
 
-O número do Pull Request que engatilhou a avaliação.
+A hash do commit que estará recebendo o resultado do avaliador.
 
 ## Exemplo de uso
 ```yml
@@ -36,7 +36,7 @@ O número do Pull Request que engatilhou a avaliação.
     uses: actions/checkout@v2
   with:
     repository: betrybe/store-evaluation-action
-    ref: v4.3
+    ref: v5.0
     token: ${{ secrets.GIT_HUB_PAT }}
     path: .github/actions/store-evaluation
 - name: Run Store evaluation
@@ -44,7 +44,7 @@ O número do Pull Request que engatilhou a avaliação.
   with:
     evaluation-data: ${{ steps.evaluator.outputs.result }}
     environment: production
-    pr-number: ${{ github.event.pull_request.number }}
+    commit_hash: ${{ github.event.pull_request.head.sha }}
 ```
 
 ## Aprenda mais sobre GitHub Actions
