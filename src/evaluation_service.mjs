@@ -38,7 +38,7 @@ const evaluationService = {
         return delivery
       })
       .catch((error) => {
-        core.setFailed(`[ERROR] Could not be send evaluation. Status: ${error.response.status}. Reason: ${JSON.stringify(error.response.data)}`)
+        core.setFailed(`[ERROR] Evaluation could not be sent. Status: ${error.response.status}. Reason: ${JSON.stringify(error.response.data)}`)
 
         return {
           status: error.response.status,
