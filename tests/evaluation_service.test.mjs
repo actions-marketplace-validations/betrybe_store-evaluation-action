@@ -42,6 +42,7 @@ describe('send evaluation to projects-service', () => {
   it('should returns error when commit hash doesn\'t exists', async () => {
     jest.spyOn(core, 'info').mockImplementation(jest.fn())
     jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
+    jest.spyOn(githubService, 'createSummaryMessage').mockImplementation(jest.fn())
     jest.spyOn(githubService, 'createFeedback')
     
     const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
@@ -59,6 +60,7 @@ describe('send evaluation to projects-service', () => {
       
     expect(core.setFailed).toHaveBeenCalledTimes(1)
     expect(core.info).toHaveBeenCalledTimes(1)
+    expect(githubService.createSummaryMessage).toHaveBeenCalled()
     expect(githubService.createFeedback).not.toHaveBeenCalled()
 
     expect(result).toEqual({

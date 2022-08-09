@@ -37,6 +37,33 @@ const githubService = {
           reason: error.response.data.message
         }
       })
+  },
+
+  async createSummaryMessage(responseData) {
+    if (responseData.message && responseData.message === 'Student not found') {
+      return await core.summary
+        .addHeading('❌ Avaliação não registrada', 2)
+        .addRaw(`Não foi possível encontrar o nome de usuário ${ghUsername} na lista de pessoas estudantes`)
+        .write()
+    }
+  
+    if (responseData.message && responseData.message === 'Delivery not found') {
+      return await core.summary
+        .addHeading('❌ Avaliação não registrada', 2)
+        .addRaw(`Entrega não encontrada para o commit ${commitHash}. A entrega pode não ter sido registrada por:`)
+        .addList([
+          'O projeto não ter sido encontrado pelo nome',
+          'A pessoa estudante não ter sido encontrada pelo username'
+        ])
+        .write()
+    }
+  
+    if (responseData.errors && responseData.errors.evaluations && responseData.errors.evaluations.find(ev => ev.requirement_id)) {
+      return await core.summary
+        .addHeading('❌ Avaliação não registrada', 2)
+        .addRaw('Os requisitos do projeto não são válidos')
+        .write()
+    }
   }
 }
 

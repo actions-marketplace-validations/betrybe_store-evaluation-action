@@ -37,8 +37,10 @@ const evaluationService = {
         
         return delivery
       })
-      .catch((error) => {
+      .catch(async (error) => {
         core.setFailed(`[ERROR] Evaluation could not be sent. Status: ${error.response.status}. Reason: ${JSON.stringify(error.response.data)}`)
+
+        await githubService.createSummaryMessage(error.response.data)
 
         return {
           status: error.response.status,
