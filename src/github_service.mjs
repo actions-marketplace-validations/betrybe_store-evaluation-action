@@ -6,6 +6,7 @@ const enc = new Base64()
 const token = process.env.TOKEN
 const prNumber = process.env.PR_NUMBER
 const ghUsername = process.env.GH_USERNAME
+const commitHash = process.env.COMMIT_HASH
 const octokit = github.getOctokit(token)
 const gradeToApprove = 3
 const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
