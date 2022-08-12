@@ -9,9 +9,6 @@ inputs:
     description: "Ambiente para qual a avaliação será enviada"
     required: true
     default: "development"
-  commit_hash:
-    description: "Hash do commit que originou a avaliação"
-    required: true
 
 runs:
   using: "composite"
@@ -22,4 +19,4 @@ runs:
       env:
         EVALUATION_DATA: ${{ inputs.evaluation-data }}
         ENVIRONMENT: ${{ inputs.environment }}
-        COMMIT_HASH: ${{ inputs.commit_hash }}
+        COMMIT_HASH: ${{ github.event.pull_request.head.sha }}

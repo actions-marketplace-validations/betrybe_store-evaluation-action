@@ -26,10 +26,6 @@ Deve ser:
 - staging
 - production
 
-### `commit_hash`
-
-A hash do commit que estará recebendo o resultado do avaliador.
-
 ## Exemplo de uso
 ```yml
 - name: Fetch Store evaluation
@@ -42,9 +38,8 @@ A hash do commit que estará recebendo o resultado do avaliador.
 - name: Run Store evaluation
   uses: ./.github/actions/store-evaluation
   with:
-    evaluation-data: ${{ steps.evaluator.outputs.result }}
     environment: production
-    commit_hash: ${{ github.event.pull_request.head.sha }}
+    evaluation-data: ${{ steps.evaluator.outputs.result }}
 ```
 
 ## Aprenda mais sobre GitHub Actions
