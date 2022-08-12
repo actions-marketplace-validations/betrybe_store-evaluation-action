@@ -44,11 +44,11 @@ const githubService = {
     if (responseData.message && responseData.message === 'Delivery not found') {
       return await core.summary
         .addHeading('❌ Avaliação não registrada', 2)
-        .addRaw('Entrega não encontrada para o commit' + '`' + commitHash + '`', true)
+        .addRaw(`Entrega não encontrada para o commit <code>${commitHash}</code>.<br />`, true) 
         .addRaw('A entrega pode não ter sido registrada por:')
         .addList([
-          'O projeto não ter sido encontrado pelo nome' + '`' + repo + '`',
-          'A pessoa estudante não ter sido encontrada pelo username' + '`' + ghUsername + '`'
+          `O projeto não ter sido encontrado pelo nome <code>${repo}</code>`,
+          `A pessoa estudante não ter sido encontrada pelo username <code>${ghUsername}</code>`
         ])
         .write()
     }
