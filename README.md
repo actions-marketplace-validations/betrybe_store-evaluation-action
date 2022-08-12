@@ -26,9 +26,9 @@ Deve ser:
 - staging
 - production
 
-### `commit_hash`
+### `token`
 
-A hash do commit que estará recebendo o resultado do avaliador.
+Token do projeto que está rodando o avaliador
 
 ## Exemplo de uso
 ```yml
@@ -36,15 +36,16 @@ A hash do commit que estará recebendo o resultado do avaliador.
     uses: actions/checkout@v2
   with:
     repository: betrybe/store-evaluation-action
-    ref: v5.0
+    ref: v6.0
     token: ${{ secrets.GIT_HUB_PAT }}
     path: .github/actions/store-evaluation
+
 - name: Run Store evaluation
   uses: ./.github/actions/store-evaluation
   with:
     evaluation-data: ${{ steps.evaluator.outputs.result }}
     environment: production
-    commit_hash: ${{ github.event.pull_request.head.sha }}
+    token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Aprenda mais sobre GitHub Actions
