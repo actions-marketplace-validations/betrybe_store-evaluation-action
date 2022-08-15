@@ -38,4 +38,3 @@ runs:
         COMMIT_HASH: ${{ github.event.pull_request.head.sha }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         GH_USERNAME: ${{ github.event.pull_request.user.login }}
-

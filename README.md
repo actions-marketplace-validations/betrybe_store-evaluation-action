@@ -43,9 +43,9 @@ Token do projeto que está rodando o avaliador
 - name: Run Store evaluation
   uses: ./.github/actions/store-evaluation
   with:
-    evaluation-data: ${{ steps.evaluator.outputs.result }}
     environment: production
     token: ${{ secrets.GITHUB_TOKEN }}
+    evaluation-data: ${{ steps.evaluator.outputs.result }}
 ```
 
 ## Aprenda mais sobre GitHub Actions
