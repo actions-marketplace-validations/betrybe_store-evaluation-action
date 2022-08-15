@@ -26,19 +26,25 @@ Deve ser:
 - staging
 - production
 
+### `token`
+
+Token do projeto que está rodando o avaliador
+
 ## Exemplo de uso
 ```yml
 - name: Fetch Store evaluation
     uses: actions/checkout@v2
   with:
     repository: betrybe/store-evaluation-action
-    ref: v5.0
+    ref: v6.0
     token: ${{ secrets.GIT_HUB_PAT }}
     path: .github/actions/store-evaluation
+
 - name: Run Store evaluation
   uses: ./.github/actions/store-evaluation
   with:
     environment: production
+    token: ${{ secrets.GITHUB_TOKEN }}
     evaluation-data: ${{ steps.evaluator.outputs.result }}
 ```
 

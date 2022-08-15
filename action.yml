@@ -9,14 +9,32 @@ inputs:
     description: "Ambiente para qual a avaliação será enviada"
     required: true
     default: "development"
+  token:
+    description: "GitHub token do projeto"
+    required: true
 
 runs:
   using: "composite"
   steps:
-    - id: job
+    - name: Set up Nodejs 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - shell: bash
+      run: npm install --prefix ${{ github.action_path }}
+
+    - name: Run check-protected-files
+      run: ${{ github.action_path }}/src/check_protected_files.sh
       shell: bash
-      run: ${{ github.action_path }}/store.sh
+
+    - name: Run store-evaluation
+      run: node ${{ github.action_path }}/index.mjs 
+      shell: bash
       env:
         EVALUATION_DATA: ${{ inputs.evaluation-data }}
         ENVIRONMENT: ${{ inputs.environment }}
+        TOKEN: ${{ inputs.token }}
         COMMIT_HASH: ${{ github.event.pull_request.head.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        GH_USERNAME: ${{ github.event.pull_request.user.login }}
