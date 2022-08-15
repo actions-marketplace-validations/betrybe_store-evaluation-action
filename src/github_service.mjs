@@ -59,6 +59,20 @@ const githubService = {
         .addRaw('Os requisitos do projeto não são válidos')
         .write()
     }
+  },
+
+  async fetchModifiedFiles(defaultBranch, headCommit) {
+    return await octokit.rest.repos.compareCommitsWithBasehead({
+      owner,
+      repo,
+      basehead: `${defaultBranch}...${headCommit}`
+    }).then(response => {
+      const modifiedFiles = response.data.files.filter(file => file.status === 'modified')
+
+      return modifiedFiles
+    }).catch(error => {
+      core.setFailed(`[ERROR] Could not fetch modified files. Status: ${error.status}. Reason: ${error.response.data.message}`)
+    })
   }
 }
 

@@ -14,7 +14,6 @@ describe('send feedback to pull request', () => {
     const expectedCommnent = `
     **Olá ${process.env.GH_USERNAME}!**
     Acompanhe a avaliação do seu commit diretamente na [página do projeto](${delivery.project_url}).
-
     O feedback pode demorar até alguns minutos para aparecer. Caso esteja tendo problemas, **fale com nosso time**.
   
     ### Resultado por requisito
@@ -33,7 +32,6 @@ describe('send feedback to pull request', () => {
 11 - Classe PVE | :heavy_multiplication_x:
 12 - Classe Dragon | :heavy_multiplication_x:
 13 - Arquivo index | :heavy_multiplication_x:
-
     `
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
 
@@ -75,5 +73,44 @@ describe('send feedback to pull request', () => {
       status: 401,
       reason: 'Bad credentials'
     })
+  })
+})
+
+describe('fetch modified files in repository', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('should returns modified files when compare commits', async () => {
+    const mockFiles = [
+      {
+        status: 'modified',
+        filename: 'index.js'
+      },
+      {
+        status: 'added',
+        filename: 'src/foo.js'
+      }
+    ]
+
+    const expectedFiles = [
+      {
+        status: 'modified',
+        filename: 'index.js'
+      }
+    ]
+
+    const defaultBranch = 'main'
+    const headCommit = '74115987016e209bf21d0c1dc8553f1d052fc2a5'
+
+    nock('https://api.github.com')
+      .get(/.*/)
+      .reply(200, {
+        files: mockFiles
+      })
+  
+    const result = await githubService.fetchModifiedFiles(defaultBranch, headCommit)
+
+    expect(result).toEqual(expectedFiles)
   })
 })
