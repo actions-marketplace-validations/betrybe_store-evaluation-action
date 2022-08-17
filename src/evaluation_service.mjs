@@ -5,9 +5,11 @@ import githubService from './github_service.mjs'
 
 const enc = new Base64()
 const commitHash = process.env.COMMIT_HASH
+const defaultBranch = process.env.DEFAULT_BRANCH
 const environment = process.env.ENVIRONMENT
 const evaluationSecret = process.env.EVALUATION_SECRET
 const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
+const protectedFiles = ['.github/workflows/main.yml', 'trybe.yml', '.trybe/requirements.json']
 
 const apiDomains = {
   'test': 'http://localhost:4000',
@@ -25,6 +27,10 @@ const payload = {
 
 const evaluationService = {
   async save() {
+    if (await this.hasInvalidChanges()) {
+      return core.setFailed(`[ERROR] The files ${protectedFiles.join(', ')} cannot be modified.`)
+    }
+
     core.info(`\u001B[34m[INFO] Sending evaluation information using → ${environment}`)
 
     return await axios.patch(endpoint, payload, {headers: {'Authorization': `Basic ${evaluationSecret}`}})
@@ -34,7 +40,7 @@ const evaluationService = {
         core.info('\u001B[34m[INFO] Delivery updated successfully ✓')
 
         await githubService.createFeedback(delivery)
-        
+      
         return delivery
       })
       .catch(async (error) => {
@@ -47,6 +53,14 @@ const evaluationService = {
           reason: error.response.data
         }
       }) 
+  },
+
+  async hasInvalidChanges () {
+    core.info('\u001B[34m[INFO] Checking changes in protected files')
+  
+    const modifiedFiles = await githubService.fetchModifiedFiles(defaultBranch, commitHash)
+  
+    return !!modifiedFiles.find((modifiedFile) => protectedFiles.includes(modifiedFile.filename))
   }
 }
 

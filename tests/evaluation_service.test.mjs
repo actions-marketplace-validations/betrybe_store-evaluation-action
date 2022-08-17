@@ -15,6 +15,7 @@ describe('send evaluation to projects-service', () => {
     jest.spyOn(core, 'info').mockImplementation(jest.fn())
     jest.spyOn(core, 'info').mockImplementation(jest.fn())
     jest.spyOn(githubService, 'createFeedback').mockImplementation(jest.fn())
+    jest.spyOn(evaluationService, 'hasInvalidChanges').mockReturnValue(false)
     const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
 
     const payload = {
@@ -35,6 +36,7 @@ describe('send evaluation to projects-service', () => {
     
     expect(core.info).toHaveBeenCalledTimes(2)
     expect(githubService.createFeedback).toHaveBeenCalled()
+    expect(evaluationService.hasInvalidChanges).toHaveBeenCalled()
     expect(result.id).toBe(1)
     expect(result.process_status).toBe('waiting_process')
   })
@@ -44,6 +46,7 @@ describe('send evaluation to projects-service', () => {
     jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
     jest.spyOn(githubService, 'createSummaryMessage').mockImplementation(jest.fn())
     jest.spyOn(githubService, 'createFeedback')
+    jest.spyOn(evaluationService, 'hasInvalidChanges').mockReturnValue(false)
     
     const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
 
@@ -62,10 +65,62 @@ describe('send evaluation to projects-service', () => {
     expect(core.info).toHaveBeenCalledTimes(1)
     expect(githubService.createSummaryMessage).toHaveBeenCalled()
     expect(githubService.createFeedback).not.toHaveBeenCalled()
+    expect(evaluationService.hasInvalidChanges).toHaveBeenCalled()
 
     expect(result).toEqual({
       status: 422,
       reason: { message: 'Delivery not found' }
     })
+  })
+  
+  it('shouldn\'t store evaluation when protected files is changed', async () => {
+    jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
+    jest.spyOn(githubService, 'createFeedback')
+    jest.spyOn(evaluationService, 'hasInvalidChanges').mockReturnValue(true)
+
+    await evaluationService.save()
+
+    expect(evaluationService.hasInvalidChanges).toHaveBeenCalled()
+    expect(core.setFailed).toHaveBeenCalledTimes(1)
+    expect(githubService.createFeedback).not.toHaveBeenCalled()
+  })
+})
+
+describe('validates changes in protected files', () => {
+  it('returns falsy when changes not includes protected files', async () => {
+    jest.spyOn(core, 'info').mockImplementation(jest.fn())
+    jest.spyOn(githubService, 'fetchModifiedFiles').mockReturnValue([
+      {
+        filename: 'index.js',
+        status: 'modified'
+      }
+    ])
+
+    const result = await evaluationService.hasInvalidChanges()
+
+    expect(result).toBeFalsy()
+    expect(core.info).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns truthy when changes includes protected files', async () => {
+    jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
+    jest.spyOn(githubService, 'fetchModifiedFiles').mockReturnValue([
+      {
+        filename: '.github/workflows/main.yml',
+        status: 'modified'
+      },
+      {
+        filename: 'trybe.yml',
+        status: 'modified'
+      },
+      {
+        filename: '.trybe/requirements.json',
+        status: 'modified'
+      },
+    ])
+
+    const result = await evaluationService.hasInvalidChanges()
+
+    expect(result).toBeTruthy()
   })
 })

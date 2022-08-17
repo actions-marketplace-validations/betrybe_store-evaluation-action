@@ -24,10 +24,6 @@ runs:
     - shell: bash
       run: npm install --prefix ${{ github.action_path }}
 
-    - name: Run check-protected-files
-      run: ${{ github.action_path }}/src/check_protected_files.sh
-      shell: bash
-
     - name: Run store-evaluation
       run: node ${{ github.action_path }}/index.mjs 
       shell: bash
@@ -38,3 +34,4 @@ runs:
         COMMIT_HASH: ${{ github.event.pull_request.head.sha }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         GH_USERNAME: ${{ github.event.pull_request.user.login }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
