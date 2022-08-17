@@ -36,7 +36,7 @@ Token do projeto que está rodando o avaliador
     uses: actions/checkout@v2
   with:
     repository: betrybe/store-evaluation-action
-    ref: v6.0
+    ref: v6
     token: ${{ secrets.GIT_HUB_PAT }}
     path: .github/actions/store-evaluation
 
