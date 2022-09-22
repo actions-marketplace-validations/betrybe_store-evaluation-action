@@ -10,41 +10,43 @@ const commitHash = process.env.COMMIT_HASH
 const octokit = github.getOctokit(token)
 const gradeToApprove = 3
 const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
-const { owner, repo } = github.context.issue
+const defaultBranch = process.env.DEFAULT_BRANCH
 
 const githubService = {
-  async createFeedback(delivery) {
+  repoIsTemplate(owner, repo) {
+    return owner === 'betrybe' && repo.includes('0x')
+  },
+
+  async createFeedback(owner, repo, delivery) {
     core.info('\u001B[34m[INFO] Creating feedback...')
 
     return await octokit.rest.issues.createComment({
       issue_number: prNumber,
       owner,
       repo,
-      body: generateComment(delivery)
+      body: this.buildComment(delivery)
     })
       .then((response) => {
         core.info('\u001B[34m[INFO] Feedback created successfully ✓')
-
-        return {
-          status: response.status,
-          comment: response.data.body
-        }
+        return { status: response.status, data: response.data.body }
       })
-      .catch((error) => {
-        core.setFailed(`[ERROR] Could not create feedback. Status: ${error.status}. Reason: ${error.response.data.message}`)
-
-        return {
-          status: error.response.status,
-          reason: error.response.data.message
-        }
-      })
+      .catch((error) => ({ status: error.response.status, data: error.response.data }))
   },
 
-  async createSummaryMessage(responseData) {  
-    if (responseData.message && responseData.message === 'Delivery not found') {
+  async createErrorSummaryMessage(owner, repo, data) {
+    if (data.message && data.message === 'Invalid Changes') {
+      const protectedFiles = data.files.map(file => `<code>${file}</code>`).join(', ')
       return await core.summary
         .addHeading('❌ Avaliação não registrada', 2)
-        .addRaw(`Entrega não encontrada para o commit <code>${commitHash}</code>.<br /><br />`) 
+        .addRaw('Arquivos protegidos foram alterados')
+        .addRaw(`Os seguintes arquivos não podem ser alterados: ${protectedFiles}`)
+        .write()
+    }
+
+    if (data.message && data.message === 'Delivery not found') {
+      return await core.summary
+        .addHeading('❌ Avaliação não registrada', 2)
+        .addRaw(`Entrega não encontrada para o commit <code>${commitHash}</code>.<br /><br />`)
         .addRaw('A entrega pode não ter sido registrada por:')
         .addList([
           `O projeto não ter sido encontrado pelo nome <code>${repo}</code>`,
@@ -52,51 +54,57 @@ const githubService = {
         ])
         .write()
     }
-  
-    if (responseData.errors && responseData.errors.evaluations && responseData.errors.evaluations.find(ev => ev.requirement_id)) {
+
+    if (data.errors && data.errors.evaluations && data.errors.evaluations.find(ev => ev.requirement_id)) {
       return await core.summary
         .addHeading('❌ Avaliação não registrada', 2)
         .addRaw('Os requisitos do projeto não são válidos')
         .write()
     }
+
+    return await core.summary.addHeading('❌ Avaliação não registrada', 2).write()
   },
 
-  async fetchModifiedFiles(defaultBranch, headCommit) {
-    return await octokit.rest.repos.compareCommitsWithBasehead({
-      owner,
-      repo,
-      basehead: `${defaultBranch}...${headCommit}`
-    }).then(response => {
-      const modifiedFiles = response.data.files.filter(file => file.status === 'modified')
+  async hasInvalidChanges(owner, repo, protectedFiles) {
+    core.info('\u001B[34m[INFO] Checking changes in protected files')
+    const modifiedFiles = await fetchModifiedFiles(owner, repo, defaultBranch, commitHash)
+    return modifiedFiles.some((modifiedFile) => protectedFiles.includes(modifiedFile.filename))
+  },
 
-      return modifiedFiles
-    }).catch(error => {
-      core.setFailed(`[ERROR] Could not fetch modified files. Status: ${error.status}. Reason: ${error.response.data.message}`)
-    })
+  buildComment(delivery) {
+    return `${commentHeader(delivery?.project_url)}\n  \n` +
+      '### Resultado por requisito\n' +
+      '*Nome* | *Avaliação*\n' +
+      '--- | :---:\n' +
+      `${generateEvaluationsTable()}`
   }
 }
 
-function generateComment(delivery) {
-  const comment = `
-**Olá ${ghUsername}!**
-Acompanhe a avaliação do seu commit diretamente na [página do projeto](${delivery.project_url}).
-
-O feedback pode demorar até alguns minutos para aparecer. Caso esteja tendo problemas, **fale com nosso time**.
-
-### Resultado por requisito
-*Nome* | *Avaliação*
---- | :---:
-${generateEvaluationsTable()}
-`
-
-  return comment
+const fetchModifiedFiles = async (owner, repo, defaultBranch, headCommit) => {
+  return await octokit.rest.repos.compareCommitsWithBasehead({
+    owner,
+    repo,
+    basehead: `${defaultBranch}...${headCommit}`
+  })
+    .then(response => response.data.files.filter(file => file.status === 'modified')
+    ).catch(error => {
+      core.setFailed(`[ERROR] Could not fetch modified files. Status: ${error.status}. Reason: ${error.response.data.message}`)
+    })
 }
 
-function generateEvaluationsTable() {
+const commentHeader = (project_url) => {
+  if (!project_url) return 'Repositório template, avaliação não registrada.'
+
+  return `**Olá ${ghUsername}!**\n` +
+    `Acompanhe a avaliação do seu commit diretamente na [página do projeto](${project_url}).\n` +
+    'O feedback pode demorar até alguns minutos para aparecer. Caso esteja tendo problemas, **fale com nosso time**.'
+}
+
+const generateEvaluationsTable = () => {
   return evaluationData.evaluations.reduce((acc, evaluation) => {
     const description = evaluation.description
     const grade = evaluation.grade ? evaluation.grade : 0
-    
+
     return `${acc}${description} | ${getResultEmoji(grade)}\n`
   }, '')
 }

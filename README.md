@@ -1,5 +1,7 @@
 # store-evaluation-action
-Essa action recebe os dados de avaliação de um avaliador e manda para o [projects-service](https://github.com/betrybe/projects-service).
+Essa action recebe os dados de avaliação de um avaliador, manda para o [projects-service](https://github.com/betrybe/projects-service), e cria o comentário de feedback no Pull Request.
+
+Caso ela esteja sendo executada em um repositório template, ela somente faz o comentário de feedback.
 
 ## Inputs
 
@@ -36,7 +38,7 @@ Token do projeto que está rodando o avaliador
     uses: actions/checkout@v2
   with:
     repository: betrybe/store-evaluation-action
-    ref: v6
+    ref: v7
     token: ${{ secrets.GIT_HUB_PAT }}
     path: .github/actions/store-evaluation
 
@@ -47,7 +49,3 @@ Token do projeto que está rodando o avaliador
     token: ${{ secrets.GITHUB_TOKEN }}
     evaluation-data: ${{ steps.evaluator.outputs.result }}
 ```
-
-## Aprenda mais sobre GitHub Actions
-
-- https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-a-docker-container-action

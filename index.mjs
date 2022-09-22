@@ -1,3 +1,5 @@
-import evaluationService from './src/evaluation_service.mjs'
+import storeEvaluation from './src/store_evaluation.mjs'
+import * as github from '@actions/github'
+const { owner, repo } = github.context.issue
 
-evaluationService.save()
+storeEvaluation(owner, repo)
