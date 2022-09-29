@@ -13,6 +13,7 @@ const apiDomains = {
   'development': 'http://localhost:4000',
   'staging': 'https://api.betrybe.dev',
   'production': 'https://api.betrybe.com',
+  'homologation': 'https://api.betrybe.app',
 }
 
 const endpoint = `${apiDomains[environment]}/projects-service/external/v1/deliveries/${commitHash}`
