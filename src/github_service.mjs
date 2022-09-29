@@ -95,7 +95,7 @@ const fetchModifiedFiles = async (owner, repo, defaultBranch, headCommit) => {
 const commentHeader = (project_url) => {
   if (!project_url) return 'Repositório template, avaliação não registrada.'
 
-  return `**Olá ${ghUsername}!**\n` +
+  return `**Olá, ${ghUsername}!**\n` +
     `Acompanhe a avaliação do seu commit diretamente na [página do projeto](${project_url}).\n` +
     'O feedback pode demorar até alguns minutos para aparecer. Caso esteja tendo problemas, **fale com nosso time**.'
 }

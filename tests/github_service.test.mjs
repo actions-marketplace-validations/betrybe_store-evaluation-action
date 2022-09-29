@@ -24,7 +24,7 @@ const commentTable = `
 13 - Arquivo index | :heavy_multiplication_x:
 `
 
-const expectedProjectComment = `**Olá ${process.env.GH_USERNAME}!**
+const expectedProjectComment = `**Olá, ${process.env.GH_USERNAME}!**
 Acompanhe a avaliação do seu commit diretamente na [página do projeto](${delivery.project_url}).
 O feedback pode demorar até alguns minutos para aparecer. Caso esteja tendo problemas, **fale com nosso time**.
 ${commentTable}`
