@@ -12,7 +12,7 @@
   "author": "betrybe",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.9.1",
+    "@actions/core": "^1.10.0",
     "@actions/github": "^5.0.1",
     "axios": "^0.27.2",
     "base64-string": "^1.1.2"
