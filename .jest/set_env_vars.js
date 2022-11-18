@@ -5,4 +5,3 @@ process.env.EVALUATION_DATA = 'eyJnaXRodWJfdXNlcm5hbWUiOiJyZW5hbnZ5IiwiZ2l0aHViX
 process.env.TOKEN = '123'
 process.env.GITHUB_REPOSITORY = 'betrybe/project-name'
 process.env.GH_USERNAME = 'john.doe'
-process.env.PR_NUMBER = 2

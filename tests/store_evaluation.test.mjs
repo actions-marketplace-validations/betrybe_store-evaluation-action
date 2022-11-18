@@ -17,13 +17,11 @@ describe('send evaluation to projects-service and treat errors if it is a regula
     const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
 
     jest.spyOn(core, 'info').mockImplementation(jest.fn())
-    jest.spyOn(githubService, 'createFeedback').mockImplementation(jest.fn(() => ({ status: 201 })))
     jest.spyOn(githubService, 'hasInvalidChanges').mockReturnValue(false)
     jest.spyOn(projectsService, 'save').mockImplementation(jest.fn(() => ({ status: 200, data: { ...evaluationData, processor_version: 2 } })))
 
     await storeEvaluation(owner, repo)
 
-    expect(githubService.createFeedback).toHaveBeenCalled()
     expect(githubService.hasInvalidChanges).toHaveBeenCalled()
   })
 
@@ -31,13 +29,11 @@ describe('send evaluation to projects-service and treat errors if it is a regula
     jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
     jest.spyOn(core.summary, 'write').mockImplementation(jest.fn())
     jest.spyOn(githubService, 'hasInvalidChanges').mockReturnValue(true)
-    jest.spyOn(githubService, 'createFeedback').mockImplementation(jest.fn(() => ({ status: 201 })))
 
     await storeEvaluation(owner, repo)
 
     expect(core.setFailed).toHaveBeenCalledWith('[ERROR] The files .github/workflows/main.yml, trybe.yml, .trybe/requirements.json cannot be modified.')
     expect(githubService.hasInvalidChanges).toHaveBeenCalled()
-    expect(githubService.createFeedback).toHaveBeenCalledTimes(0)
     expect(core.summary.write).toHaveBeenCalled()
   })
 
@@ -46,31 +42,13 @@ describe('send evaluation to projects-service and treat errors if it is a regula
     jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
     jest.spyOn(core.summary, 'write').mockImplementation(jest.fn())
     jest.spyOn(githubService, 'hasInvalidChanges').mockReturnValue(false)
-    jest.spyOn(githubService, 'createFeedback').mockImplementation(jest.fn(() => ({ status: 201 })))
     jest.spyOn(projectsService, 'save').mockImplementation(jest.fn(() => ({ status: 400, data: { message: 'Delivery not found' } })))
 
     await storeEvaluation(owner, repo)
 
     expect(core.setFailed).toHaveBeenCalledWith('[ERROR] Evaluation could not be sent. Status: 400. Data: {\"message\":\"Delivery not found\"}')
     expect(githubService.hasInvalidChanges).toHaveBeenCalled()
-    expect(githubService.createFeedback).toHaveBeenCalledTimes(0)
     expect(core.summary.write).toHaveBeenCalled()
-  })
-
-  it('should treat create feedback errors', async () => {
-    const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
-
-    jest.spyOn(core, 'info').mockImplementation(jest.fn())
-    jest.spyOn(core, 'setFailed').mockImplementation(jest.fn())
-    jest.spyOn(githubService, 'hasInvalidChanges').mockReturnValue(false)
-    jest.spyOn(githubService, 'createFeedback').mockImplementation(jest.fn(() => ({ status: 500, data: { message: 'Internal Server Error' } })))
-    jest.spyOn(projectsService, 'save').mockImplementation(jest.fn(() => ({ status: 200, data: { ...evaluationData, processor_version: 2 } })))
-
-    await storeEvaluation(owner, repo)
-
-    expect(core.setFailed).toHaveBeenCalledWith('[ERROR] Could not create feedback. Status: 500. Data: {\"message\":\"Internal Server Error\"}')
-    expect(githubService.hasInvalidChanges).toHaveBeenCalled()
-    expect(githubService.createFeedback).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -82,13 +60,11 @@ describe('does not send evaluation to projects-service if it is a template', () 
 
   it('should save evaluation with success', async () => {
     jest.spyOn(core, 'info').mockImplementation(jest.fn())
-    jest.spyOn(githubService, 'createFeedback').mockImplementation(jest.fn(() => ({ status: 201 })))
     jest.spyOn(githubService, 'hasInvalidChanges').mockReturnValue(false)
     jest.spyOn(projectsService, 'save').mockImplementation(jest.fn())
 
     await storeEvaluation(owner, repo)
 
-    expect(githubService.createFeedback).toHaveBeenCalled()
     expect(githubService.hasInvalidChanges).toHaveBeenCalled()
     expect(projectsService.save).toHaveBeenCalledTimes(0)
   })

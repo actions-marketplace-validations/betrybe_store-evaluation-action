@@ -11,7 +11,6 @@ const run = async (owner, repo) => {
     }
 
     if (githubService.repoIsTemplate(owner, repo)) {
-        githubService.createFeedback(owner, repo)
         return
     }
 
@@ -23,12 +22,7 @@ const run = async (owner, repo) => {
         return
     }
 
-    const saveFeedback = await githubService.createFeedback(owner, repo, saveRequest.data)
-
-    if (saveFeedback.status !== 201) {
-        core.setFailed(`[ERROR] Could not create feedback. Status: ${saveFeedback.status}. Data: ${JSON.stringify(saveFeedback.data)}`)
-        return
-    }
+    core.exportVariable("PROJECT_URL", saveRequest.data.project_url)
 }
 
 export default run

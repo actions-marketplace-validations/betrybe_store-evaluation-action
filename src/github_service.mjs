@@ -1,36 +1,15 @@
 import * as github from '@actions/github'
-import { Base64 } from 'base64-string'
 import * as core from '@actions/core'
 
-const enc = new Base64()
 const token = process.env.TOKEN
-const prNumber = process.env.PR_NUMBER
 const ghUsername = process.env.GH_USERNAME
 const commitHash = process.env.COMMIT_HASH
 const octokit = github.getOctokit(token)
-const gradeToApprove = 3
-const evaluationData = JSON.parse(enc.decode(process.env.EVALUATION_DATA))
 const defaultBranch = process.env.DEFAULT_BRANCH
 
 const githubService = {
   repoIsTemplate(owner, repo) {
     return owner === 'betrybe' && repo.includes('0x')
-  },
-
-  async createFeedback(owner, repo, delivery) {
-    core.info('\u001B[34m[INFO] Creating feedback...')
-
-    return await octokit.rest.issues.createComment({
-      issue_number: prNumber,
-      owner,
-      repo,
-      body: this.buildComment(delivery)
-    })
-      .then((response) => {
-        core.info('\u001B[34m[INFO] Feedback created successfully ✓')
-        return { status: response.status, data: response.data.body }
-      })
-      .catch((error) => ({ status: error.response.status, data: error.response.data }))
   },
 
   async createErrorSummaryMessage(owner, repo, data) {
@@ -69,14 +48,6 @@ const githubService = {
     core.info('\u001B[34m[INFO] Checking changes in protected files')
     const modifiedFiles = await fetchModifiedFiles(owner, repo, defaultBranch, commitHash)
     return modifiedFiles.some((modifiedFile) => protectedFiles.includes(modifiedFile.filename))
-  },
-
-  buildComment(delivery) {
-    return `${commentHeader(delivery?.project_url)}\n  \n` +
-      '### Resultado por requisito\n' +
-      '*Nome* | *Avaliação*\n' +
-      '--- | :---:\n' +
-      `${generateEvaluationsTable()}`
   }
 }
 
@@ -90,27 +61,6 @@ const fetchModifiedFiles = async (owner, repo, defaultBranch, headCommit) => {
     ).catch(error => {
       core.setFailed(`[ERROR] Could not fetch modified files. Status: ${error.status}. Reason: ${error.response.data.message}`)
     })
-}
-
-const commentHeader = (project_url) => {
-  if (!project_url) return 'Repositório template, avaliação não registrada.'
-
-  return `**Olá, ${ghUsername}!**\n` +
-    `Acompanhe a avaliação do seu commit diretamente na [página do projeto](${project_url}).\n` +
-    'O feedback pode demorar até alguns minutos para aparecer. Caso esteja tendo problemas, **fale com nosso time**.'
-}
-
-const generateEvaluationsTable = () => {
-  return evaluationData.evaluations.reduce((acc, evaluation) => {
-    const description = evaluation.description
-    const grade = evaluation.grade ? evaluation.grade : 0
-
-    return `${acc}${description} | ${getResultEmoji(grade)}\n`
-  }, '')
-}
-
-const getResultEmoji = (grade) => {
-  return grade >= gradeToApprove ? ':heavy_check_mark:' : ':heavy_multiplication_x:'
 }
 
 export default githubService
